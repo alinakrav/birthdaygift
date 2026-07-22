@@ -523,6 +523,62 @@
     .slide.wide { padding: 64px 14px 20px; gap: 10px; }
     .slide.wide .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   }
+
+  /* ---------- phones: stack the two bags so each gets real room ---------- */
+  @media (max-width: 560px) {
+    /* let the selection slide grow + scroll instead of squishing */
+    .slide.wide {
+      padding: 60px 16px 26px; gap: 14px;
+      justify-content: flex-start;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .slide.wide .kicker { font-size: 21px; }
+    .tip { font-size: 12.5px; max-width: 34ch; }
+
+    /* one bag on top of the other, natural height (slide scrolls) */
+    .pick-row {
+      flex-direction: column;
+      flex: 0 0 auto;
+      gap: 26px;
+      width: 100%;
+    }
+    .option, .option.left, .option.right {
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+    .option .flashcard {
+      flex: 0 0 auto;
+      width: 100%; max-width: 330px;
+      height: 250px;
+    }
+
+    /* colour dots become a centred wrapping row with bigger tap targets */
+    .swatches {
+      flex-direction: row; flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px 16px;
+      width: 100%; max-width: 330px;
+      align-self: center;
+    }
+    .swatch { width: 30px; height: 30px; }
+
+    /* colour-name bubble: pop above the dot on tap (no hover on touch) */
+    .option.left  .swatch::after,
+    .option.right .swatch::after {
+      left: 50%; right: auto;
+      top: auto; bottom: calc(100% + 9px);
+      transform-origin: center bottom;
+      transform: translateX(-50%) scale(.4);
+      font-size: 15px; padding: 6px 14px;
+    }
+    .swatch:hover::after,
+    .swatch:focus::after,
+    .swatch:active::after {
+      opacity: 1; transform: translateX(-50%) scale(1);
+    }
+  }
 </style>
 <script>
   /* Defined here (not at the bottom) so it exists before any <img> onerror fires. */
