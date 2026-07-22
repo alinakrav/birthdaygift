@@ -882,13 +882,11 @@
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
         _subject: isFirst
-          ? '🎁 Susan picked her birthday gift!'
-          : '🎁 Susan changed her pick (resubmission #' + v + ', latest)',
+          ? '🎁 Susan picked her birthday gift! (#1)'
+          : '🎁 Susan re-picked her birthday gift (#' + v + ')',
         _template: 'table',
         'Gift Susan chose': choice,
-        'Submission': isFirst
-          ? 'First submission'
-          : 'Resubmission #' + v + ' (this is the latest one)'
+        'Submission': 'Submission #' + v + ' (the highest number is her most recent pick)'
       })
     }).catch(err => console.warn('Email send failed (page still works):', err));
   }
