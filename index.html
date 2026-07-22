@@ -281,7 +281,7 @@
   }
   .hero-img {
     width: 100%; height: 100%; object-fit: cover; display: block;
-    transform: scale(1.2);                    /* zoom the bag in 20% */
+    transform: scale(1.08);                   /* zoom the bag in ~8% */
   }
   /* final-slide selection photo: mirror how the bag looked on its card */
   .final-img { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -368,12 +368,29 @@
     flex: 0 0 auto; align-self: center;
   }
   .swatch {
+    position: relative; overflow: visible;
     width: 24px; height: 24px; border-radius: 50%; padding: 0; cursor: pointer;
     border: 2px solid #fff; box-shadow: 0 2px 6px rgba(180,90,130,.3);
     transition: transform .15s ease, box-shadow .15s ease;
   }
   .swatch:hover { transform: scale(1.12); }
   .swatch.active { transform: scale(1.2); box-shadow: 0 0 0 2px var(--pink-dk); }
+
+  /* cute colour-name bubble on hover — pops out toward the open (outer) side */
+  .swatch::after {
+    content: attr(data-label);
+    position: absolute; top: 50%;
+    background: linear-gradient(120deg, var(--pink), var(--pink-dk));
+    color: #fff; font-family: 'Poppins', sans-serif;
+    font-size: 24px; font-weight: 600; letter-spacing: .2px;
+    white-space: nowrap; padding: 8px 18px; border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(224,105,154,.5);
+    opacity: 0; pointer-events: none; z-index: 40;
+    transition: opacity .07s ease, transform .22s cubic-bezier(.34,1.8,.5,1);
+  }
+  .option.left  .swatch::after { right: calc(100% + 12px); transform-origin: right center; transform: translateY(-50%) scale(.4); }
+  .option.right .swatch::after { left:  calc(100% + 12px); transform-origin: left center;  transform: translateY(-50%) scale(.4); }
+  .swatch:hover::after { opacity: 1; transform: translateY(-50%) scale(1); }
 
   @media (max-width: 720px) {
     .pick-row { gap: 12px; }
@@ -578,8 +595,8 @@
         <div class="gift-float" id="giftFloat">
           <!-- default reveal: the blue Quince tote -->
           <div class="hero-frame">
-            <img class="hero-img" id="heroImg" src="images/Quince%20photos/blue.jpg" alt="A chic work tote"
-                 onerror="showPlaceholder(this,'👜','images/Quince photos/blue.jpg')">
+            <img class="hero-img" id="heroImg" src="images/Quince%20photos/sky%20blue.jpg" alt="A chic work tote"
+                 onerror="showPlaceholder(this,'👜','images/Quince photos/sky blue.jpg')">
           </div>
           <h1>A chic work tote!</h1>
           <p class="sub">I think you'd serve cunt with this baby blue tote at the office.</p>
@@ -802,12 +819,13 @@
       type: 'leather',
       suffix: 'leather Quince tote',
       note: '<b>Quince leather tote.</b><br>' +
-            'Structured, with a laptop sleeve and lots of pockets.<br>' +
-            'A bit heavier.<br>' +
+            'Structured, with a split interior into two sections, with more pockets.<br>' +
+            'Can fit a 15in laptop.<br>' +
+            'A bit heavier than the Longchamp with no insert.<br>' +
             'Stands on its own and has small metal feet at the bottom.',
       colors: [
-        { label: 'Deep navy',   hex: '#212a45', img: 'images/Quince photos/navy.jpg' },
-        { label: 'Blue',        hex: '#3d5a8a', img: 'images/Quince photos/blue.jpg' },
+        { label: 'Sky blue',    hex: '#87ceeb', img: 'images/Quince photos/sky blue.jpg' },
+        { label: 'Deep navy',   hex: '#212a45', img: 'images/Quince photos/deep navy.jpg' },
         { label: 'Cream',       hex: '#ece0cd', img: 'images/Quince photos/cream.jpg' },
         { label: 'Cappuccino',  hex: '#b28f6a', img: 'images/Quince photos/cappucino.jpg' },
         { label: 'Brown',       hex: '#7c4a2a', img: 'images/Quince photos/brown.jpg' },
@@ -826,11 +844,12 @@
       note: '<b>Longchamp tote.</b><br>' +
             'Lightweight, more like an actual tote.<br>' +
             "Can come with an insert inside for structure, otherwise it's basically one big pocket.<br>" +
-            "Won't stand.<br>" +
+            "Fits 13in laptop.<br>" +
+            "The body isn't structured so it won't stand, and it takes form of its contents.<br>" +
             'Is more flexible and easier to pack/compress.',
       colors: [
-        { label: 'Beige', hex: '#d9c5a4', img: 'images/Longchamp photos/beige.png' },
         { label: 'Navy',  hex: '#27314f', img: 'images/Longchamp photos/navy.png' },
+        { label: 'Beige', hex: '#d9c5a4', img: 'images/Longchamp photos/beige.png' },
         { label: 'Grey',  hex: '#8c8c8c', img: 'images/Longchamp photos/grey.png' },
         { label: 'Brown', hex: '#6b4733', img: 'images/Longchamp photos/brown.png' }
       ]
@@ -886,7 +905,7 @@
       const b = document.createElement('button');
       b.className = 'swatch' + (i === 0 ? ' active' : '');
       b.style.background = c.hex;
-      b.title = c.label;
+      b.dataset.label = c.label;
       b.setAttribute('aria-label', c.label);
       b.addEventListener('click', e => {
         e.stopPropagation();
@@ -922,7 +941,11 @@
     const finalImg = document.getElementById('finalImg');
     finalFrame.dataset.type = chosenType;
     finalImg.src = chosenImgSrc;
-    finalImg.style.transform = chosenImgScale ? 'scale(' + chosenImgScale + ')' : '';
+    // zoom the Quince (leather) photos in 20% on the final slide,
+    // except olive green which keeps its own scale
+    let finalScale = chosenImgScale;
+    if (chosenType === 'leather' && !chosenImgScale) finalScale = 1.08;
+    finalImg.style.transform = finalScale ? 'scale(' + finalScale + ')' : '';
 
     sendChoice(selectedName).finally(() => {
       burstConfetti();
