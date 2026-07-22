@@ -273,11 +273,19 @@
     0%,100% { transform: translate(-50%, -52%); }
     50%     { transform: translate(-50%, calc(-52% - 14px)); }
   }
-  .hero-img {
-    width: 210px; height: 210px; object-fit: cover;
-    border-radius: 22px; box-shadow: var(--shadow);
-    border: 4px solid #fff;
+  .hero-frame {
+    width: 262px; height: 262px;              /* 25% bigger than before */
+    border-radius: 22px; overflow: hidden;
+    border: 4px solid #fff; box-shadow: var(--shadow);
+    background: #e8e8e8;
   }
+  .hero-img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: scale(1.2);                    /* zoom the bag in 20% */
+  }
+  /* final-slide selection photo: mirror how the bag looked on its card */
+  .final-img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  #finalFrame[data-type="longchamp"] .final-img { object-fit: contain; padding: 2.8% 6.4%; }
 
   /* placeholder shown until you upload a real image */
   .img-ph {
@@ -341,6 +349,51 @@
   .flashcard.selected .pick-badge { opacity: 1; transform: scale(1); }
 
   .tip { font-size: 13px; color: #a98ea0; }
+
+  /* ---------- two bags side by side, each with colour dots ---------- */
+  .pick-row {
+    display: flex; gap: 26px; justify-content: center; align-items: stretch;
+    width: min(1000px, 100%); margin: 0 auto;
+    flex: 1 1 auto; min-height: 0;
+  }
+  .option {
+    display: flex; align-items: stretch; gap: 14px;
+    flex: 1 1 0; min-width: 0;
+  }
+  .option .flashcard {
+    flex: 1 1 auto; height: auto; min-width: 0;
+  }
+  .swatches {
+    display: flex; flex-direction: column; gap: 10px;
+    flex: 0 0 auto; align-self: center;
+  }
+  .swatch {
+    width: 24px; height: 24px; border-radius: 50%; padding: 0; cursor: pointer;
+    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(180,90,130,.3);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { transform: scale(1.2); box-shadow: 0 0 0 2px var(--pink-dk); }
+
+  @media (max-width: 720px) {
+    .pick-row { gap: 12px; }
+    .option { gap: 8px; }
+    .swatch { width: 18px; height: 18px; }
+  }
+
+  /* Longchamp photos are transparent PNGs. Sit them on the same grey as the
+     Quince photos (#e8e8e8) and pad them inward so the bag reads about the
+     same size as the Quince bag. Tweak the padding to zoom in/out. */
+  /* any transparent leather PNG (e.g. olive green) shows the Quince grey */
+  .option[data-type="leather"] .front,
+  .option[data-type="leather"] .card-img { background: #e8e8e8; }
+
+  .option[data-type="longchamp"] .front,
+  .option[data-type="longchamp"] .card-img { background: #e8e8e8; }
+  .option[data-type="longchamp"] .card-img {
+    object-fit: contain;
+    padding: 2.8% 6.4%;
+  }
 
   /* confetti canvas (kept on top so bursts/sparkles render above overlays) */
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
@@ -523,11 +576,13 @@
         <div class="rays"></div>
 
         <div class="gift-float" id="giftFloat">
-          <!-- This is your pick, same photo as Card 1 (images/option1.jpg) -->
-          <img class="hero-img" id="heroImg" src="images/option1.jpg" alt="A chic work tote"
-               onerror="showPlaceholder(this,'🍎','images/option1.jpg')">
+          <!-- default reveal: the blue Quince tote -->
+          <div class="hero-frame">
+            <img class="hero-img" id="heroImg" src="images/Quince%20photos/blue.jpg" alt="A chic work tote"
+                 onerror="showPlaceholder(this,'👜','images/Quince photos/blue.jpg')">
+          </div>
           <h1>A chic work tote!</h1>
-          <p class="sub">The one I think you'd love most.</p>
+          <p class="sub">I think you'd serve cunt with this baby blue tote at the office.</p>
           <button class="btn" data-next>I love it! →</button>
         </div>
 
@@ -544,102 +599,21 @@
 
     <!-- ===== SLIDE 4 ===== pick your favourite (4 flashcards) ===== -->
     <section class="slide wide" data-slide="3">
-      <p class="kicker">To make sure you love it,<br>pick which one is your favourite</p>
-      <p class="tip">Tap a card to choose it · tap <b>↻ note</b> to read my thoughts</p>
+      <p class="kicker">To be absolutely sure you love it,<br>pick which one is your favourite</p>
+      <p class="tip">Pick a colour with the dots · tap a bag to choose it · tap <b>↻ note</b> to read my thoughts</p>
 
-      <div class="cards" id="cards">
-        <!-- EDIT each card: image file (in /images) + the back note. -->
-        <!-- Fronts are photo-only (no text). data-name is what gets emailed. -->
-
-        <!-- CARD 1: YOUR PICK (same bag as the hero on slide 3) -->
-        <div class="flashcard" data-name="Deep navy leather tote">
-          <button class="flip-pill" data-flip>↻ note</button>
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option1.jpg" alt="Option 1"
-                   onerror="showPlaceholder(this,'🍎','images/option1.jpg')">
-            </div>
-            <div class="face back note-back">
-              <b>Deep navy leather.</b><br>
-              Structured, with a laptop sleeve and lots of pockets.<br>
-              A bit heavier.<br>
-              Stands on its own and has small metal feet at the bottom.
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 2 (no note: same as the deep navy) -->
-        <div class="flashcard" data-name="Blue leather tote">
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option2.jpg" alt="Option 2"
-                   onerror="showPlaceholder(this,'🍊','images/option2.jpg')">
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 3 (no note: same as the deep navy) -->
-        <div class="flashcard" data-name="Cream white leather tote">
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option3.jpg" alt="Option 3"
-                   onerror="showPlaceholder(this,'🍌','images/option3.jpg')">
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 4 (no note: same as the deep navy) -->
-        <div class="flashcard" data-name="Brown leather tote">
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option4.jpg" alt="Option 4"
-                   onerror="showPlaceholder(this,'🍐','images/option4.jpg')">
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 5 -->
-        <div class="flashcard" data-name="Beige Longchamp tote">
-          <button class="flip-pill" data-flip>↻ note</button>
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option5.jpg" alt="Option 5"
-                   onerror="showPlaceholder(this,'🍇','images/option5.jpg')">
-            </div>
-            <div class="face back note-back">
-              <b>Beige Longchamp.</b><br>
-              Lightweight, more like an actual tote.<br>
-              Can come with an insert inside for structure, otherwise it's basically one big pocket.<br>
-              Won't stand.<br>
-              Is more flexible and easier to pack/compress.
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 6 (no note: same as the beige Longchamp) -->
-        <div class="flashcard" data-name="Navy Longchamp tote">
-          <div class="pick-badge">✓ my pick</div>
-          <div class="inner">
-            <div class="face front">
-              <img class="card-img" src="images/option6.jpg" alt="Option 6"
-                   onerror="showPlaceholder(this,'🍓','images/option6.jpg')">
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- the two bags + colour dots are built by JS from the OPTIONS config -->
+      <div class="pick-row" id="pickRow"></div>
 
       <button class="btn" id="doneBtn" disabled>Done choosing 💝</button>
     </section>
 
     <!-- ===== SLIDE 5 ===== final ===== -->
     <section class="slide" data-slide="4">
-      <div class="balloons">🎁💕🎉</div>
       <h1>Your birthday gift<br>is on the way!!</h1>
+      <div class="hero-frame" id="finalFrame">
+        <img class="final-img" id="finalImg" alt="Your pick">
+      </div>
       <p class="sub" id="finalNote">Thank you for choosing. I can't wait for you to rock it. 🥳</p>
       <button class="text-link" id="resubmitBtn">Resubmit</button>
     </section>
@@ -814,26 +788,121 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGift(); }
   });
 
-  /* ---------- flashcards: flip + select ---------- */
+  /* ---------- two bags with colour dots: build + select ---------- */
   let selectedName = null;
+  let chosenImgSrc = '', chosenImgScale = null, chosenType = '';
   const doneBtn = document.getElementById('doneBtn');
+  const pickRow = document.getElementById('pickRow');
 
-  document.querySelectorAll('.flashcard').forEach(card => {
-    // flip pill (doesn't select) — only present on cards that have a note
-    const flip = card.querySelector('[data-flip]');
-    if (flip) {
-      flip.addEventListener('click', e => {
-        e.stopPropagation();
-        card.classList.toggle('flipped');
-      });
+  // EDIT: add/remove colours here. label = what gets emailed; img = photo;
+  // hex = the little dot colour. (photos live in the /images subfolders)
+  const OPTIONS = [
+    {
+      side: 'left',
+      type: 'leather',
+      suffix: 'leather Quince tote',
+      note: '<b>Quince leather tote.</b><br>' +
+            'Structured, with a laptop sleeve and lots of pockets.<br>' +
+            'A bit heavier.<br>' +
+            'Stands on its own and has small metal feet at the bottom.',
+      colors: [
+        { label: 'Deep navy',   hex: '#212a45', img: 'images/Quince photos/navy.jpg' },
+        { label: 'Blue',        hex: '#3d5a8a', img: 'images/Quince photos/blue.jpg' },
+        { label: 'Cream',       hex: '#ece0cd', img: 'images/Quince photos/cream.jpg' },
+        { label: 'Cappuccino',  hex: '#b28f6a', img: 'images/Quince photos/cappucino.jpg' },
+        { label: 'Brown',       hex: '#7c4a2a', img: 'images/Quince photos/brown.jpg' },
+        { label: 'Dark brown',  hex: '#432617', img: 'images/Quince photos/dark brown.jpg' },
+        { label: 'Black',       hex: '#1b1b1b', img: 'images/Quince photos/black.jpg' },
+        { label: 'Red',         hex: '#9b2b2b', img: 'images/Quince photos/red.jpg' },
+        { label: 'Light green', hex: '#b9c7a5', img: 'images/Quince photos/light green.jpg' },
+        { label: 'Olive green', hex: '#6f6a3b', img: 'images/Quince photos/olive green.png', scale: 0.9 },
+        { label: 'Ocean green', hex: '#3c6b64', img: 'images/Quince photos/ocean green.jpg' }
+      ]
+    },
+    {
+      side: 'right',
+      type: 'longchamp',
+      suffix: 'Longchamp tote',
+      note: '<b>Longchamp tote.</b><br>' +
+            'Lightweight, more like an actual tote.<br>' +
+            "Can come with an insert inside for structure, otherwise it's basically one big pocket.<br>" +
+            "Won't stand.<br>" +
+            'Is more flexible and easier to pack/compress.',
+      colors: [
+        { label: 'Beige', hex: '#d9c5a4', img: 'images/Longchamp photos/beige.png' },
+        { label: 'Navy',  hex: '#27314f', img: 'images/Longchamp photos/navy.png' },
+        { label: 'Grey',  hex: '#8c8c8c', img: 'images/Longchamp photos/grey.png' },
+        { label: 'Brown', hex: '#6b4733', img: 'images/Longchamp photos/brown.png' }
+      ]
     }
-    // clicking the card selects it
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.flashcard').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedName = card.dataset.name;
-      doneBtn.disabled = false;
+  ];
+
+  function selectOption(optEl) {
+    document.querySelectorAll('.option .flashcard').forEach(c => c.classList.remove('selected'));
+    optEl.querySelector('.flashcard').classList.add('selected');
+    selectedName = optEl._label + ' ' + optEl._suffix;
+    chosenImgSrc = optEl._imgSrc;
+    chosenImgScale = optEl._imgScale;
+    chosenType = optEl.dataset.type;
+    doneBtn.disabled = false;
+  }
+
+  OPTIONS.forEach(opt => {
+    const optEl = document.createElement('div');
+    optEl.className = 'option ' + opt.side;
+    optEl.dataset.type = opt.type;
+    optEl._suffix = opt.suffix;
+    optEl._label = opt.colors[0].label;   // default colour label
+
+    // card (image swaps with the colour dots)
+    const card = document.createElement('div');
+    card.className = 'flashcard';
+    card.innerHTML =
+      '<button class="flip-pill" data-flip>↻ note</button>' +
+      '<div class="pick-badge">✓ my pick</div>' +
+      '<div class="inner">' +
+        '<div class="face front"><img class="card-img" alt="tote"></div>' +
+        '<div class="face back note-back">' + opt.note + '</div>' +
+      '</div>';
+    const img = card.querySelector('.card-img');
+    const applyColor = c => {
+      img.src = encodeURI(c.img);
+      img.style.transform = c.scale ? 'scale(' + c.scale + ')' : '';  // per-colour zoom
+      optEl._imgSrc = encodeURI(c.img);
+      optEl._imgScale = c.scale || null;
+    };
+    applyColor(opt.colors[0]);
+    img.addEventListener('error', () => showPlaceholder(img, '👜', 'photo missing'));
+    card.querySelector('[data-flip]').addEventListener('click', e => {
+      e.stopPropagation();
+      card.classList.toggle('flipped');
     });
+    card.addEventListener('click', () => selectOption(optEl));
+
+    // colour dots
+    const sw = document.createElement('div');
+    sw.className = 'swatches';
+    opt.colors.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.className = 'swatch' + (i === 0 ? ' active' : '');
+      b.style.background = c.hex;
+      b.title = c.label;
+      b.setAttribute('aria-label', c.label);
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        sw.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        b.classList.add('active');
+        applyColor(c);
+        optEl._label = c.label;
+        selectOption(optEl);   // choosing a colour also picks this bag
+      });
+      sw.appendChild(b);
+    });
+
+    // outer edge for the dots: left card -> left, right card -> right
+    if (opt.side === 'right') { optEl.appendChild(card); optEl.appendChild(sw); }
+    else { optEl.appendChild(sw); optEl.appendChild(card); }
+    pickRow.appendChild(optEl);
   });
 
   /* ---------- done choosing -> email + frosted pan to final ---------- */
@@ -842,9 +911,18 @@
     doneBtn.disabled = true;
     doneBtn.textContent = 'Sending… 💌';
 
-    // record the pick on the final slide
+    // record the pick on the final slide; lower-case the first word so it
+    // reads naturally mid-sentence, e.g. "You chose the deep navy ..."
+    const chosen = selectedName.charAt(0).toLowerCase() + selectedName.slice(1);
     document.getElementById('finalNote').textContent =
-      'You chose the "' + selectedName + '". I can\'t wait for you to rock it! 🥳';
+      'You chose the ' + chosen + '. I can\'t wait for you to rock it! 🥳';
+
+    // show the chosen bag on the final slide, framed like the reveal
+    const finalFrame = document.getElementById('finalFrame');
+    const finalImg = document.getElementById('finalImg');
+    finalFrame.dataset.type = chosenType;
+    finalImg.src = chosenImgSrc;
+    finalImg.style.transform = chosenImgScale ? 'scale(' + chosenImgScale + ')' : '';
 
     sendChoice(selectedName).finally(() => {
       burstConfetti();
