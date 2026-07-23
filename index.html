@@ -581,9 +581,13 @@
     .slide.wide .option[data-type="leather"] .card-img {
       transform: translateY(-20%) scale(var(--img-scale, 1));
     }
-    /* Longchamp square photos read too big in the frame; zoom out ~30% */
+    /* olive green reads a touch big; zoom it out another ~15% */
+    .slide.wide .option[data-type="leather"][data-color="Olive green"] .card-img {
+      transform: translateY(-20%) scale(calc(var(--img-scale, 1) * .85));
+    }
+    /* Longchamp: zoom back in ~25% (from the earlier 30% out) and lift 15% */
     .slide.wide .option[data-type="longchamp"] .card-img {
-      transform: scale(calc(var(--img-scale, 1) * .7));
+      transform: translateY(-15%) scale(calc(var(--img-scale, 1) * .875));
     }
 
     /* one bag on top of the other, natural height (slide scrolls) */
@@ -1036,6 +1040,7 @@
       img.src = encodeURI(c.img);
       // per-colour zoom via a CSS var (composed with mobile transforms in CSS)
       img.style.setProperty('--img-scale', c.scale || 1);
+      optEl.dataset.color = c.label;   // lets CSS tweak specific colours (e.g. olive)
       optEl._imgSrc = encodeURI(c.img);
       optEl._imgScale = c.scale || null;
     };
