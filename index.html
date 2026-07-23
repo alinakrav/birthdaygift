@@ -86,6 +86,12 @@
     opacity: 1; transform: translateY(0) scale(1);
     pointer-events: auto;
   }
+  /* Susan photo slides: transition in/out about 2x slower for a gentle reveal */
+  .slide.photo-slide {
+    transition: opacity 1.7s cubic-bezier(.4,0,.2,1),
+                transform 1.8s cubic-bezier(.22,1,.36,1),
+                filter 2s ease;
+  }
   .slide.left {
     opacity: 0; transform: translateY(-26px) scale(1.01);
   }
@@ -284,8 +290,18 @@
     width: 100%; height: 100%; object-fit: cover; display: block;
     transform: scale(1.08);                   /* zoom the bag in ~8% */
   }
-  /* framed personal photos (the "us now / us then" slides) */
+  /* framed personal photos (the Susan slides) — big, they're the focal point */
+  .photo-frame {
+    width: min(560px, 88vw);
+    height: min(560px, 62vh);
+    border-radius: 26px; overflow: hidden;
+    border: 5px solid #fff; box-shadow: var(--shadow);
+    background: #e8e8e8; flex: 0 1 auto;
+  }
   .photo-img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  @media (max-width: 560px) {
+    .photo-frame { width: 90vw; height: min(90vw, 56vh); border-radius: 22px; }
+  }
 
   /* final-slide selection photo: mirror how the bag looked on its card */
   .final-img { width: 100%; height: 100%; display: block; object-fit: cover; }
@@ -639,8 +655,8 @@
     </section>
 
     <!-- ===== SLIDE: us now ===== -->
-    <section class="slide" data-slide="1">
-      <div class="hero-frame">
+    <section class="slide photo-slide" data-slide="1">
+      <div class="photo-frame">
         <img class="photo-img" src="images/Susan/first.jpeg" alt="Us"
              onerror="showPlaceholder(this,'📸','images/Susan/first.jpeg')">
       </div>
@@ -649,8 +665,8 @@
     </section>
 
     <!-- ===== SLIDE: us then ===== -->
-    <section class="slide" data-slide="2">
-      <div class="hero-frame">
+    <section class="slide photo-slide" data-slide="2">
+      <div class="photo-frame">
         <img class="photo-img" src="images/Susan/second.jpg" alt="Us"
              onerror="showPlaceholder(this,'📸','images/Susan/second.jpg')">
       </div>
@@ -659,8 +675,8 @@
     </section>
 
     <!-- ===== SLIDE 2 ===== EDIT: build-up message ===== -->
-    <section class="slide" data-slide="3">
-      <div class="hero-frame">
+    <section class="slide photo-slide" data-slide="3">
+      <div class="photo-frame">
         <img class="photo-img" src="images/Susan/third.jpg" alt="Us"
              onerror="showPlaceholder(this,'📸','images/Susan/third.jpg')">
       </div>
@@ -805,7 +821,9 @@
     } else {
       from.classList.add('left');
       from.classList.remove('active');
-      setTimeout(() => from.classList.remove('left'), 928);
+      // photo slides fade out ~2x slower, so clean up after their transition
+      const leftDelay = from.classList.contains('photo-slide') ? 1850 : 928;
+      setTimeout(() => from.classList.remove('left'), leftDelay);
       to.classList.add('active');
     }
 
