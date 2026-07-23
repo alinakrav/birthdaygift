@@ -86,11 +86,18 @@
     opacity: 1; transform: translateY(0) scale(1);
     pointer-events: auto;
   }
-  /* Susan photo slides: transition in/out about 2x slower for a gentle reveal */
-  .slide.photo-slide {
-    transition: opacity 1.7s cubic-bezier(.4,0,.2,1),
-                transform 1.8s cubic-bezier(.22,1,.36,1),
-                filter 2s ease;
+  /* Susan photos cross-dissolve through a full white screen (fired in goTo),
+     not a pan: white fades all the way up, the slide swaps instantly at peak
+     white, then the white fades all the way back out. */
+  .slide.instant { transition: none !important; }   /* swap with no pan/fade */
+
+  /* the white light: a solid full-screen white whose fade in + out fills the
+     whole transition, only touching pure white at the midpoint (never held). */
+  .flash.sweep { background: #fff; animation: flashSweep 2s ease-in-out both; }
+  @keyframes flashSweep {
+    0%   { opacity: 0; }
+    50%  { opacity: 1; }
+    100% { opacity: 0; }
   }
   .slide.left {
     opacity: 0; transform: translateY(-26px) scale(1.01);
@@ -811,7 +818,24 @@
     // reset the gift box each time we (re)enter it, so it can be replayed
     if (n === GIFT_SLIDE) resetGift();
 
-    if (frosted) {
+    if (to.classList.contains('photo-slide')) {
+      // Susan photos: full white screen fades in, slide swaps instantly at the
+      // peak (so no pan is ever seen), then the white fades back out
+      flash.classList.remove('sweep');
+      void flash.offsetWidth;            // restart the animation if it's mid-flight
+      flash.classList.add('sweep');
+      setTimeout(() => flash.classList.remove('sweep'), 2000);
+      setTimeout(() => {
+        from.classList.add('instant');
+        from.classList.remove('active', 'left', 'frost-out', 'frost-in');
+        to.classList.add('instant', 'active');
+        // drop the no-transition flag next frame so later slides animate normally
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          from.classList.remove('instant');
+          to.classList.remove('instant');
+        }));
+      }, 1000);
+    } else if (frosted) {
       from.classList.add('frost-out');
       setTimeout(() => {
         from.classList.remove('active', 'frost-out');
@@ -821,9 +845,7 @@
     } else {
       from.classList.add('left');
       from.classList.remove('active');
-      // photo slides fade out ~2x slower, so clean up after their transition
-      const leftDelay = from.classList.contains('photo-slide') ? 1850 : 928;
-      setTimeout(() => from.classList.remove('left'), leftDelay);
+      setTimeout(() => from.classList.remove('left'), 928);
       to.classList.add('active');
     }
 
