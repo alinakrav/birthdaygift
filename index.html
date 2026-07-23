@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- tells Safari to tint its toolbars cream (to match the page) instead of
+     sampling the pink content, which showed as a pink strip at the bottom -->
+<meta name="theme-color" content="#fff0e6" />
 <title>Happy Birthday Susan! 🎂</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>">
 
@@ -34,6 +37,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body { height: 100%; }
+  /* cream base under everything so no strip of empty canvas shows behind the
+     mobile browser's toolbars (the page gradient ends on this same cream) */
+  html { background: #fff0e6; }
 
   body {
     font-family: 'Poppins', system-ui, sans-serif;
@@ -42,7 +48,7 @@
       radial-gradient(1200px 700px at 15% -5%, #ffe3ef 0%, transparent 55%),
       radial-gradient(1000px 800px at 110% 20%, #fde7d0 0%, transparent 55%),
       linear-gradient(160deg, #fff4f8 0%, #fff0e6 100%);
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     overflow: hidden;
   }
 
@@ -348,6 +354,9 @@
   }
   .flashcard.selected .front { border-color: var(--pink-dk); }
   .front .card-img, .front .img-ph { flex: 1; width: 100%; object-fit: cover; }
+  /* per-colour zoom is set as a CSS var in JS so mobile can compose it with its
+     own transforms (a plain inline transform would override those instead) */
+  .card-img { transform: scale(var(--img-scale, 1)); }
   .front .label {
     padding: 10px 8px; font-weight: 600; font-size: 14px; color: var(--ink);
     background: #fff;
@@ -566,6 +575,16 @@
 
     /* show the whole bag, centred — cover was cropping on the wide phone card */
     .slide.wide .option .card-img { object-fit: contain; padding: 6px 10px; }
+    /* Quince photos have empty headroom, so the bag sits low; lift it up.
+       (card bg matches the photo's grey, so the space that opens up below
+       is seamless.) */
+    .slide.wide .option[data-type="leather"] .card-img {
+      transform: translateY(-20%) scale(var(--img-scale, 1));
+    }
+    /* Longchamp square photos read too big in the frame; zoom out ~30% */
+    .slide.wide .option[data-type="longchamp"] .card-img {
+      transform: scale(calc(var(--img-scale, 1) * .7));
+    }
 
     /* one bag on top of the other, natural height (slide scrolls) */
     .pick-row {
@@ -1015,7 +1034,8 @@
     const img = card.querySelector('.card-img');
     const applyColor = c => {
       img.src = encodeURI(c.img);
-      img.style.transform = c.scale ? 'scale(' + c.scale + ')' : '';  // per-colour zoom
+      // per-colour zoom via a CSS var (composed with mobile transforms in CSS)
+      img.style.setProperty('--img-scale', c.scale || 1);
       optEl._imgSrc = encodeURI(c.img);
       optEl._imgScale = c.scale || null;
     };
