@@ -61,12 +61,14 @@
   /* ---------- Deck / slides (full-bleed, no card frame) ---------- */
   .stage {
     position: relative; z-index: 1;
-    height: 100vh; width: 100%;
+    height: 100vh; height: 100dvh;   /* dvh = visible area on mobile (clears toolbars) */
+    width: 100%;
   }
 
   .deck {
     position: relative;
-    width: 100%; height: 100vh;
+    width: 100%;
+    height: 100vh; height: 100dvh;
   }
 
   .slide {
@@ -554,12 +556,16 @@
   @media (max-width: 560px) {
     /* let the selection slide grow + scroll instead of squishing */
     .slide.wide {
-      padding: 60px 16px 26px; gap: 14px;
+      padding: 60px 16px 44px; gap: 14px;
       justify-content: flex-start;
       overflow-y: auto; -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
     }
     .slide.wide .kicker { font-size: 21px; }
     .tip { font-size: 12.5px; max-width: 34ch; }
+
+    /* show the whole bag, centred — cover was cropping on the wide phone card */
+    .slide.wide .option .card-img { object-fit: contain; padding: 6px 10px; }
 
     /* one bag on top of the other, natural height (slide scrolls) */
     .pick-row {
