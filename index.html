@@ -284,6 +284,9 @@
     width: 100%; height: 100%; object-fit: cover; display: block;
     transform: scale(1.08);                   /* zoom the bag in ~8% */
   }
+  /* framed personal photos (the "us now / us then" slides) */
+  .photo-img { width: 100%; height: 100%; display: block; object-fit: cover; }
+
   /* final-slide selection photo: mirror how the bag looked on its card */
   .final-img { width: 100%; height: 100%; display: block; object-fit: cover; }
   #finalFrame[data-type="longchamp"] .final-img { object-fit: contain; padding: 2.8% 6.4%; }
@@ -635,15 +638,35 @@
       <button class="btn" data-next>Open your card →</button>
     </section>
 
-    <!-- ===== SLIDE 2 ===== EDIT: build-up message ===== -->
+    <!-- ===== SLIDE: us now ===== -->
     <section class="slide" data-slide="1">
+      <div class="hero-frame">
+        <img class="photo-img" src="images/Susan/us%20now.jpeg" alt="Us now"
+             onerror="showPlaceholder(this,'📸','images/Susan/us now.jpeg')">
+      </div>
+      <p class="kicker">Thank you for being my bestie!</p>
+      <button class="btn" data-next>You're welcome &lt;3</button>
+    </section>
+
+    <!-- ===== SLIDE: us then ===== -->
+    <section class="slide" data-slide="2">
+      <div class="hero-frame">
+        <img class="photo-img" src="images/Susan/us%20then.jpeg" alt="Us then"
+             onerror="showPlaceholder(this,'📸','images/Susan/us then.jpeg')">
+      </div>
+      <p class="kicker">Can't believe it's been 6 years already!</p>
+      <button class="btn" data-next>IKR!</button>
+    </section>
+
+    <!-- ===== SLIDE 2 ===== EDIT: build-up message ===== -->
+    <section class="slide" data-slide="3">
       <div class="balloons">✨</div>
       <p class="kicker">It's a very special day<br>and I have a special gift<br>in mind for you…</p>
       <button class="btn" data-next>Ooh, what is it? →</button>
     </section>
 
     <!-- ===== SLIDE 3 ===== the magical gift box reveal ===== -->
-    <section class="slide" data-slide="2">
+    <section class="slide" data-slide="4">
       <p class="kicker box-prompt" id="boxPrompt">Tap the box to open your gift</p>
 
       <div class="scene" id="scene">
@@ -672,7 +695,7 @@
     </section>
 
     <!-- ===== SLIDE 4 ===== pick your favourite (4 flashcards) ===== -->
-    <section class="slide wide" data-slide="3">
+    <section class="slide wide" data-slide="5">
       <p class="kicker">To be absolutely sure you love it,<br>pick which one is your favourite</p>
       <p class="tip">Pick a colour with the dots · tap a bag to choose it · tap <b>↻ note</b> to read my thoughts</p>
 
@@ -683,7 +706,7 @@
     </section>
 
     <!-- ===== SLIDE 5 ===== final ===== -->
-    <section class="slide" data-slide="4">
+    <section class="slide" data-slide="6">
       <h1>Your birthday gift<br>is on the way!!</h1>
       <div class="hero-frame" id="finalFrame">
         <img class="final-img" id="finalImg" alt="Your pick">
@@ -754,7 +777,7 @@
   /* ---------- slide navigation ---------- */
   const slides = [...document.querySelectorAll('.slide')];
   const backBtn = document.getElementById('backBtn');
-  const GIFT_SLIDE = 2;
+  const GIFT_SLIDE = 4;
   let current = 0;
 
   function updateNav() {
@@ -1008,14 +1031,14 @@
       burstConfetti();
       doneBtn.textContent = 'Done choosing 💝';
       doneBtn.disabled = false;             // usable again if she comes back to re-pick
-      goTo(4, true); // frosted pan
+      goTo(6, true); // frosted pan
     });
   });
 
   /* ---------- resubmit from the final slide ---------- */
   const resubmitBtn = document.getElementById('resubmitBtn');
   resubmitBtn.addEventListener('click', () => {
-    goTo(3);   // back to the menu of options so she can pick again
+    goTo(5);   // back to the menu of options so she can pick again
   });
 
   /* ---------- Formsubmit (emails your inbox via the alias) ---------- */
