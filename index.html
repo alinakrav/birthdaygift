@@ -839,14 +839,44 @@
   const GIFT_SLIDE = 4;
   let current = 0;
 
+  // in-flight transition bookkeeping: timers are cancelled and a sequence token
+  // is bumped on every navigation so a stale swap can't leave an old slide
+  // stranded in the background when the pink buttons are tapped in quick succession.
+  let transitionTimers = [];
+  let transitionSeq = 0;
+
+  // warm up the Susan photos (decode ahead of time) so the mid-flash instant
+  // swap always lands on a fully-painted image, never the empty grey frame —
+  // that grey frame was the brief glitch on first load of the third photo.
+  slides.forEach(s => {
+    if (!s.classList.contains('photo-slide')) return;
+    const img = s.querySelector('.photo-img');
+    if (img && img.decode) img.decode().catch(() => {});
+  });
+
   function updateNav() {
     backBtn.classList.toggle('hidden', current === 0);
   }
 
   function goTo(n, frosted) {
     if (n === current) return;
+
+    // A new navigation supersedes any transition still in flight: cancel its
+    // pending timers, bump the token so async (decode-gated) swaps bail out, and
+    // snap every slide to a clean state with only the logical current one showing.
+    // Without this, a late swap from a previous tap re-activated an old slide and
+    // left it stranded behind the new one.
+    transitionTimers.forEach(clearTimeout);
+    transitionTimers = [];
+    const token = ++transitionSeq;
+    slides.forEach((s, i) => {
+      s.classList.remove('left', 'frost-out', 'frost-in', 'instant');
+      s.classList.toggle('active', i === current);
+    });
+
     const from = slides[current];
     const to = slides[n];
+    const defer = (fn, ms) => { transitionTimers.push(setTimeout(fn, ms)); };
 
     // reset the gift box each time we (re)enter it, so it can be replayed
     if (n === GIFT_SLIDE) resetGift();
@@ -857,28 +887,36 @@
       flash.classList.remove('sweep');
       void flash.offsetWidth;            // restart the animation if it's mid-flight
       flash.classList.add('sweep');
-      setTimeout(() => flash.classList.remove('sweep'), 2000);
-      setTimeout(() => {
+      defer(() => flash.classList.remove('sweep'), 2000);
+
+      // swap only once the white is at full peak AND the incoming photo is
+      // decoded, so the swap never lands on the empty grey frame (the glitch).
+      const img = to.querySelector('.photo-img');
+      const ready = img && img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+      const peak  = new Promise(res => defer(res, 1000));
+      Promise.all([ready, peak]).then(() => {
+        if (token !== transitionSeq) return;   // superseded by a newer navigation
         from.classList.add('instant');
         from.classList.remove('active', 'left', 'frost-out', 'frost-in');
         to.classList.add('instant', 'active');
         // drop the no-transition flag next frame so later slides animate normally
         requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (token !== transitionSeq) return;
           from.classList.remove('instant');
           to.classList.remove('instant');
         }));
-      }, 1000);
+      });
     } else if (frosted) {
       from.classList.add('frost-out');
-      setTimeout(() => {
+      defer(() => {
         from.classList.remove('active', 'frost-out');
         to.classList.add('active', 'frost-in');
-        setTimeout(() => to.classList.remove('frost-in'), 1069);
+        defer(() => to.classList.remove('frost-in'), 1069);
       }, 731);
     } else {
       from.classList.add('left');
       from.classList.remove('active');
-      setTimeout(() => from.classList.remove('left'), 928);
+      defer(() => from.classList.remove('left'), 928);
       to.classList.add('active');
     }
 
@@ -981,10 +1019,8 @@
             'Stands on its own and has small metal feet at the bottom.',
       colors: [
         { label: 'Sky blue',    hex: '#87ceeb', img: 'images/Quince photos/sky blue.jpg' },
-        { label: 'Deep navy',   hex: '#212a45', img: 'images/Quince photos/deep navy.jpg' },
+        { label: 'Navy',        hex: '#212a45', img: 'images/Quince photos/navy.jpg' },
         { label: 'Cream',       hex: '#ece0cd', img: 'images/Quince photos/cream.jpg' },
-        { label: 'Cappuccino',  hex: '#b28f6a', img: 'images/Quince photos/cappucino.jpg' },
-        { label: 'Brown',       hex: '#7c4a2a', img: 'images/Quince photos/brown.jpg' },
         { label: 'Dark brown',  hex: '#432617', img: 'images/Quince photos/dark brown.jpg' },
         { label: 'Black',       hex: '#1b1b1b', img: 'images/Quince photos/black.jpg' },
         { label: 'Red',         hex: '#9b2b2b', img: 'images/Quince photos/red.jpg' },
